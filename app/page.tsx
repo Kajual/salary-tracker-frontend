@@ -1,5 +1,6 @@
 import WeeklyCalendar from "@/components/WeeklyCalendar";
 import DataCard from "@/components/DataCard";
+import NewWeeklyCalendar from "@/components/NewWeeklyCalendar";
 
 
 export default function Home() {
@@ -10,7 +11,7 @@ export default function Home() {
            <DataCard></DataCard>
            <DataCard></DataCard>
         </div>
-        <WeeklyCalendar />
+        <NewWeeklyCalendar></NewWeeklyCalendar>
     </div>
   );
 }
