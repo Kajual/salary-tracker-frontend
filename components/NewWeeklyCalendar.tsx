@@ -22,9 +22,34 @@ const times = [
 export default function NewWeeklyCalendar() {
 
     const [lessons, setLessons] = useState<Lesson[]>([]);
+    const [editionLesson, setEditionLesson] = useState<Lesson | null>(null);
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
     function handleAddLesson(lesson: Lesson) {
         setLessons(prev => [...prev, lesson]);
+    }
+
+    function handleEdit(lesson: Lesson) {
+        setEditionLesson(lesson);
+        setIsEditDialogOpen(true);
+    }
+
+    function handleDelete(lesson: Lesson) {
+        console.log('Delete clicked', lesson);
+    }
+
+    function handleUpdateLesson(updatedLesson: Lesson) {
+        setLessons(prevLessons =>
+            prevLessons.map(lesson =>
+                lesson.groupName === editionLesson?.groupName &&
+                lesson.startTime === editionLesson?.startTime &&
+                lesson.day === editionLesson?.day
+                    ? updatedLesson
+                    : lesson
+            )
+        );
+        setIsEditDialogOpen(false);
+        setEditionLesson(null);
     }
 
     return (
@@ -51,10 +76,14 @@ export default function NewWeeklyCalendar() {
                                 l => l.day === day && l.startTime === time
                             );
                             return (
-                                <TableCell key={day + time} className="border p-2 h-28">
+                                <TableCell key={day + time} className="border p-2 h-40">
                                     {lesson && (
                                         <div className="flex justify-center items-center h-full">
-                                            <CalendarDataCard lesson={lesson} />
+                                            <CalendarDataCard
+                                                lesson={lesson}
+                                                onEdit={() => handleEdit(lesson)}
+                                                onDelete={() => handleDelete(lesson)}
+                                            />
                                         </div>
                                         )}
                                 </TableCell>
@@ -64,6 +93,16 @@ export default function NewWeeklyCalendar() {
                 ))}
             </TableBody>
         </Table>
+
+            {isEditDialogOpen && editionLesson && (
+                <DialogForm
+                    onAddLesson={handleUpdateLesson}
+                    onClose={() => {setIsEditDialogOpen(false); setEditionLesson(null); }}
+                    initialData={editionLesson}
+                    isEdit
+                    open={isEditDialogOpen}
+                />
+            )}
         </div>
     )
 }

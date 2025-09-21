@@ -20,19 +20,39 @@ import {
     SelectValue
 } from "@/components/ui/select";
 import {Lesson} from "@/components/WeeklyCalendar";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 
 type DialogFormProps = {
     onAddLesson: (lesson: Lesson) => void;
+    onClose?: () => void;
+    initialData?: Lesson;
+    isEdit?: boolean;
+    open?: boolean;
 }
 
-export default function DialogForm({onAddLesson}: DialogFormProps) {
+export default function DialogForm({onAddLesson, onClose, initialData, isEdit, open}: DialogFormProps) {
 
     const [groupName, setGroupName] = useState("");
     const [groupSize, setGroupSize] = useState("");
     const [day, setDay] = useState("");
     const [startTime, setStartTime] = useState("");
     const [duration, setDuration] = useState("");
+
+    useEffect(() => {
+        if (initialData) {
+            setGroupName(initialData.groupName);
+            setGroupSize(initialData.groupSize.toString());
+            setDay(initialData.day);
+            setStartTime(initialData.startTime);
+            setDuration(initialData.duration.toString());
+        } else {
+            setGroupName("");
+            setGroupSize("");
+            setDay("");
+            setStartTime("");
+            setDuration("");
+        }
+    }, [initialData]);
 
     function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
@@ -44,26 +64,30 @@ export default function DialogForm({onAddLesson}: DialogFormProps) {
             startTime,
             duration: Number(duration),
         });
+        if (onClose) onClose();
 
-        setGroupName("");
-        setGroupSize("");
-        setDay("");
-        setStartTime("");
-        setDuration("");
+        if (!initialData) {
+            setGroupName("");
+            setGroupSize("");
+            setDay("");
+            setStartTime("");
+            setDuration("");
+        }
     }
 
     return (
-        <Dialog>
-
-            <DialogTrigger asChild>
-                <Button variant="outline">Add lesson</Button>
-            </DialogTrigger>
+        <Dialog open={open}>
+            {!isEdit && (
+                <DialogTrigger asChild>
+                    <Button variant="outline">Add lesson</Button>
+                </DialogTrigger>
+            )}
             <DialogContent className="sm:max-w-[425px] z-50">
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
-                        <DialogTitle>Add a lesson</DialogTitle>
+                        <DialogTitle>{isEdit ? "Edit lesson" : "Add a lesson"}</DialogTitle>
                         <DialogDescription>
-                            Add your lesson information here. Click Add when you are finished
+                            {isEdit ? "Edit your lesson information here. Click Save when you are finished" : "Add your lesson information here. Click Add when you are finished"}
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4">
@@ -124,7 +148,7 @@ export default function DialogForm({onAddLesson}: DialogFormProps) {
                         <DialogClose asChild>
                             <Button variant="outline" className="border p-2">Cancel</Button>
                         </DialogClose>
-                        <Button className="bg-gray-400 border" type="submit">Save changes</Button>
+                        <Button className="bg-gray-400 border" type="submit">{isEdit ? "Save changes" : "Add lesson"}</Button>
                     </DialogFooter>
                 </form>
             </DialogContent>
